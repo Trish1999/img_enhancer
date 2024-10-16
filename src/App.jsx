@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { saveAs } from 'file-saver';
-import './App.css'; // Create an App.css for the responsive styles
+import './App.css'; // Assuming you have some styles here
 
 const App = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -43,18 +43,67 @@ const App = () => {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
 
+      // Brightness and Contrast
+      const brightnessFactor = 1.1; // Increase brightness
+      const contrastFactor = 1; // Increase contrast
+
       for (let i = 0; i < data.length; i += 4) {
-        data[i] = data[i] * 1.1; // Red - increase brightness
-        data[i + 1] = data[i + 1] * 1.1; // Green - increase brightness
-        data[i + 2] = data[i + 2] * 1.1; // Blue - increase brightness
+        // Apply brightness
+        data[i] = data[i] * brightnessFactor;     // Red
+        data[i + 1] = data[i + 1] * brightnessFactor; // Green
+        data[i + 2] = data[i + 2] * brightnessFactor; // Blue
+
+        // Apply contrast
+        // Formula: (pixelValue - 128) * contrastFactor + 128
+        data[i] = ((data[i] - 128) * contrastFactor) + 128;
+        data[i + 1] = ((data[i + 1] - 128) * contrastFactor) + 128;
+        data[i + 2] = ((data[i + 2] - 128) * contrastFactor) + 128;
+
+        // Clamp values to 0-255
+        data[i] = Math.min(255, Math.max(0, data[i]));
+        data[i + 1] = Math.min(255, Math.max(0, data[i + 1]));
+        data[i + 2] = Math.min(255, Math.max(0, data[i + 2]));
       }
+
       // Put the enhanced data back into the canvas
       ctx.putImageData(imageData, 0, 0);
+      // Optional: Apply a reduced sharpening effect (using convolution)
+      const kernel = [
+        [0, -0.5, 0],
+        [-0.5, 3, -0.5],
+        [0, -0.5, 0]
+      ];
 
-      // Set the enhanced image
-      setEnhancedImage(canvas.toDataURL('image/jpeg'));
+      // Using a smaller sharpening kernel for less sharpness
+      const sharpenedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const sharpenedData = sharpenedImageData.data;
+
+      for (let y = 1; y < canvas.height - 1; y++) {
+        for (let x = 1; x < canvas.width - 1; x++) {
+          for (let c = 0; c < 3; c++) {
+            let value = 0;
+            for (let ky = -1; ky <= 1; ky++) {
+              for (let kx = -1; kx <= 1; kx++) {
+                const pixel = (y + ky) * canvas.width + (x + kx);
+                value += data[pixel * 4 + c] * kernel[ky + 1][kx + 1];
+              }
+            }
+            sharpenedData[(y * canvas.width + x) * 4 + c] = Math.min(255, Math.max(0, value));
+          }
+          sharpenedData[(y * canvas.width + x) * 4 + 3] = 255; // Alpha
+        }
+      }
+
+      ctx.putImageData(sharpenedImageData, 0, 0);
+
+      // Set the enhanced image as Base64
+      const base64Image = canvas.toDataURL('image/jpeg');
+
+      setEnhancedImage(base64Image);
     };
   };
+
+
 
   // Download enhanced image
   const downloadImage = () => {
@@ -97,16 +146,16 @@ const App = () => {
         )}
       </div>
 
+      {selectedImage && (
+        <button onClick={resetImageUpload} className="action-button">Replace Image</button>
+      )}
+
       {selectedImage && !enhancedImage && (
         <button onClick={enhanceImage} className="action-button">Enhance Image</button>
       )}
 
       {enhancedImage && !imageDownloaded && (
         <button onClick={downloadImage} className="action-button">Download Enhanced Image</button>
-      )}
-
-      {imageDownloaded && (
-        <button onClick={resetImageUpload} className="action-button">Upload Another Image</button>
       )}
     </div>
   );
