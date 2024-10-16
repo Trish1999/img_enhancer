@@ -73,7 +73,7 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <h1 style={{ color: 'white' }}>Image Enhancer</h1>
+      <h1 style={{ color: 'white', fontSize: '50px' }}>Image Enhancer</h1>
 
       {!selectedImage && (
         <input type="file" onChange={handleImageUpload} accept="image/*" className="upload-input" />
