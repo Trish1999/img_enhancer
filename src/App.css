@@ -1,0 +1,81 @@
+/* General styles */
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.upload-input {
+    margin: 20px 0;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.image-box {
+    max-width: 400px;
+    border: 2px solid gray;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f7f7f7;
+}
+
+.image-preview {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.action-button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color:rgba(158, 16, 151, 0.932);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: solid 2px white;
+    transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+    background-color:rgb(214, 50, 200);
+    border:solid 2px white ;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .image-box {
+        max-width: 90%;
+        margin: 0 auto;
+    }
+
+    .action-button {
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .image-box {
+        max-width: 100%;
+    }
+
+    .action-button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .upload-input {
+        width: 100%;
+        font-size: 14px;
+    }
+}
